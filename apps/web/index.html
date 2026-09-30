@@ -1,0 +1,15 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#10162e" />
+    <meta name="description" content="Auralis: tu música, tus playlists. Explora Spotify e importa tus MP3 en un reproductor hecho para ti." />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <title>Auralis · Un mundo más tuyo</title>
+    <script>
+      try { const preference = localStorage.getItem('auralis-theme') || 'system'; document.documentElement.dataset.theme = preference === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : preference; } catch { document.documentElement.dataset.theme = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+    </script>
+  </head>
+  <body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+</html>

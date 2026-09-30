@@ -1,0 +1,43 @@
+{
+  "name": "auralis",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0 <25"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/api && concurrently -k -n api,web \"npm run dev -w @auralis/api\" \"npm run dev -w @auralis/web\"",
+    "build": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/api && npm run build -w @auralis/web",
+    "build:web": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/web",
+    "build:api": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/api",
+    "start:api": "npm run start -w @auralis/api",
+    "typecheck": "npm run build -w @auralis/playlist-core && npm run typecheck --workspaces --if-present",
+    "lint": "eslint apps packages tests",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "preview": "npm run preview -w @auralis/web"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@playwright/test": "1.63.0",
+    "@types/cors": "2.8.19",
+    "@types/express": "5.0.6",
+    "@types/node": "26.6.3",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@types/supertest": "7.2.1",
+    "@vitejs/plugin-react": "6.1.1",
+    "concurrently": "10.0.5",
+    "eslint": "10.11.0",
+    "supertest": "7.3.0",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vite": "8.3.1",
+    "vitest": "5.0.2"
+  }
+}

@@ -1,0 +1,4 @@
+These three original synthesized ambient audio examples were created for Auralis.
+They contain no third-party recordings. They may be used, modified and distributed
+with this application and its educational demonstrations without restriction.
+They are demonstration audio, not Spotify tracks.

@@ -1,0 +1,20 @@
+{
+  "name": "@auralis/web",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@auralis/playlist-core": "1.0.0",
+    "idb": "8.0.3",
+    "lucide-react": "1.49.0",
+    "music-metadata": "11.16.1",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "typecheck": "tsc --noEmit"
+  }
+}
