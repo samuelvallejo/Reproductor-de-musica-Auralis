@@ -18,9 +18,9 @@ Resultado final: autorización, device_id y búsqueda observados directamente po
 
 Se sustituyeron las colecciones del estado por DoublyLinkedList, LinkedSequence,
 LinkedSet y StringMap propias. Artistas, resultados y snapshots de UI también
-usan nodos. El dominio quedó sin dependencias externas. El generador opcional
-Python usa su LinkedList propia para notas y sesiones; se conservaron los MP3
-ya incluidos.
+usan nodos. El dominio quedó sin dependencias externas. En ese momento el
+generador de muestras estaba escrito en Python y usaba su propia LinkedList;
+después se migró junto con las demás herramientas auxiliares a TypeScript.
 
 Comprobaciones realizadas en la copia de OneDrive:
 - npm.cmd run typecheck: correcto, incluidos frontend, API, dominio y pruebas.
@@ -30,7 +30,8 @@ Comprobaciones realizadas en la copia de OneDrive:
 - PLAYWRIGHT_CHANNEL=chrome y npm.cmd run test:e2e: 22 pruebas aprobadas
   en escritorio y móvil. Chrome instalado se usó porque no estaba descargado
   el ejecutable de Chromium que requiere esta versión de Playwright.
-- Python: sintaxis del generador y recorridos/enlaces de LinkedList comprobados.
+- La versión Python anterior pasó comprobaciones de sintaxis y recorridos de
+  LinkedList antes de su migración posterior a TypeScript.
 - Biblioteca anterior: IDs, orden, selección, metadatos, favoritos y assetId
   comprobados en roundtrip; pruebas de navegador conservaron y reprodujeron
   el Blob MP3 anterior y guardaron cambios en el mismo formato.
@@ -131,3 +132,10 @@ conserva acceso a los controles sin superposiciones.
 
 Los casos Spotify usan fixtures API/SDK. Los MP3 se decodifican y reproducen
 realmente en el navegador. No se repitió la escucha manual de Spotify Premium.
+
+## Herramientas de desarrollo TypeScript — 2026-10-05
+
+Se migraron ESLint, los generadores de arte/audio y la captura visual a archivos
+TypeScript. Se eliminó el duplicado Python de LinkedList. Los scripts ejecutables
+usan el borrado experimental de tipos de Node desde la versión 22.13. Las
+capturas van a `test-results/`, que ya está excluido del repositorio.

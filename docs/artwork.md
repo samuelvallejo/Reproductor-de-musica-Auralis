@@ -18,6 +18,6 @@ mood. Square composition, high detail, no frame, no typography, no music control
 no people, no logos, no watermark. This is artwork only, not an app mockup.
 ```
 
-Los otros paisajes son SVG originales definidos en `scripts/generate-artwork.mjs`; se regeneran con Node sin servicios externos. Son portadas predeterminadas de playlists o archivos sin portada, no supuestas portadas oficiales de canciones Spotify.
+Los otros paisajes son SVG originales definidos en `scripts/generate-artwork.ts`; se regeneran con `npm run generate:artwork` sin servicios externos. Son portadas predeterminadas de playlists o archivos sin portada, no supuestas portadas oficiales de canciones Spotify.
 
 Cuando un MP3 incluye una imagen ID3, esa imagen tiene prioridad. Cuando Spotify devuelve una portada, se utiliza el enlace real provisto por su API. Las dos capturas de diseño originales del usuario se conservan separadas en `assets/design` como referencia de implementación.

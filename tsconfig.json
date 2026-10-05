@@ -6,7 +6,8 @@
     "jsx": "react-jsx",
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
     "types": ["node", "vite/client"],
-    "noEmit": true
+    "noEmit": true,
+    "allowImportingTsExtensions": true
   },
   "include": [
     "apps/*/src/**/*.ts",
@@ -15,7 +16,9 @@
     "packages/*/src/**/*.ts",
     "tests/**/*.ts",
     "vitest.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "eslint.config.ts",
+    "scripts/**/*.ts"
   ],
   "exclude": ["node_modules", "**/dist"]
 }

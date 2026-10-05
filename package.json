@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": ">=22.12.0 <25"
+    "node": ">=22.13.0 <25"
   },
   "workspaces": [
     "apps/*",
@@ -17,7 +17,10 @@
     "build:api": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/api",
     "start:api": "npm run start -w @auralis/api",
     "typecheck": "npm run build -w @auralis/playlist-core && npm run typecheck --workspaces --if-present && tsc -p tsconfig.json",
-    "lint": "eslint apps packages tests",
+    "lint": "eslint apps packages tests scripts eslint.config.ts",
+    "generate:artwork": "npm run build -w @auralis/playlist-core && node --experimental-strip-types scripts/generate-artwork.ts",
+    "generate:samples": "npm run build -w @auralis/playlist-core && node --experimental-strip-types scripts/generate-samples.ts",
+    "capture:ui": "npm run build -w @auralis/playlist-core && node --experimental-strip-types scripts/capture-ui.ts",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "preview": "npm run preview -w @auralis/web"
@@ -34,6 +37,7 @@
     "@vitejs/plugin-react": "6.1.1",
     "concurrently": "10.0.5",
     "eslint": "10.11.0",
+    "jiti": "2.7.0",
     "supertest": "7.3.0",
     "typescript": "6.0.3",
     "typescript-eslint": "8.71.0",

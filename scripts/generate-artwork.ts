@@ -1,15 +1,28 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { LinkedSequence } from '@auralis/playlist-core';
+
+interface Palette {
+  name: string;
+  dark: string;
+  mid: string;
+  pink: string;
+  peach: string;
+  cyan: string;
+}
+
 const output = fileURLToPath(new URL('../apps/web/public/artwork/', import.meta.url));
 mkdirSync(output, { recursive: true });
-const palettes = [
-  ['orbit', '#061b37', '#516cad', '#e28bad', '#f6c2a5', '#53cdda'],
-  ['dawn', '#463753', '#b57691', '#f7b4a0', '#ffd59d', '#82aaab'],
-  ['night', '#080e2f', '#314c88', '#bd6fa4', '#e9a9c8', '#5baac2'],
-  ['coast', '#1b2d52', '#675d8b', '#e7aab2', '#fbcbac', '#5aabc7'],
-];
-for (const [name, dark, mid, pink, peach, cyan] of palettes) {
-  const stars = Array.from({ length: 90 }, (_, index) => `<circle cx="${(index * 137 + 41) % 700}" cy="${(index * 83 + 20) % 510}" r="${index % 3 === 0 ? 1.3 : .7}" fill="#fff0eb" opacity="${.25 + index % 4 * .12}"/>`).join('');
+const palettes = new LinkedSequence<Palette>()
+  .append({ name: 'orbit', dark: '#061b37', mid: '#516cad', pink: '#e28bad', peach: '#f6c2a5', cyan: '#53cdda' })
+  .append({ name: 'dawn', dark: '#463753', mid: '#b57691', pink: '#f7b4a0', peach: '#ffd59d', cyan: '#82aaab' })
+  .append({ name: 'night', dark: '#080e2f', mid: '#314c88', pink: '#bd6fa4', peach: '#e9a9c8', cyan: '#5baac2' })
+  .append({ name: 'coast', dark: '#1b2d52', mid: '#675d8b', pink: '#e7aab2', peach: '#fbcbac', cyan: '#5aabc7' });
+for (const { name, dark, mid, pink, peach, cyan } of palettes) {
+  let stars = '';
+  for (let index = 0; index < 90; index += 1) {
+    stars += `<circle cx="${(index * 137 + 41) % 700}" cy="${(index * 83 + 20) % 510}" r="${index % 3 === 0 ? 1.3 : .7}" fill="#fff0eb" opacity="${.25 + index % 4 * .12}"/>`;
+  }
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 700">
   <defs>
     <linearGradient id="sky" x2=".5" y2="1"><stop stop-color="${dark}"/><stop offset=".55" stop-color="${mid}"/><stop offset="1" stop-color="${pink}"/></linearGradient>

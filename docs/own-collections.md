@@ -13,7 +13,9 @@ su función de infraestructura.
 | packages/playlist-core/src/collections.ts | LinkedSequence: artistas, resultados, snapshots, navegación visual e historial |
 | packages/playlist-core/src/collections.ts | LinkedSet: favoritos y suscriptores; unicidad y orden con nodos propios |
 | packages/playlist-core/src/string-map.ts | StringMap: tabla hash propia para nodos, catálogo y playlists |
-| scripts/own_collections.py | LinkedList de Python: notas y sesiones del generador opcional |
+| scripts/generate-artwork.ts | Generador TypeScript de las portadas SVG |
+| scripts/generate-samples.ts | Audio de muestra con LinkedSequence, Buffer y FFmpeg |
+| scripts/capture-ui.ts | Capturas de revisión con Playwright y LinkedSequence |
 
 LinkedSequence envuelve nuestra DoublyLinkedList, sin un arreglo interno. Sus
 métodos map, filter, slice, find, some y join están escritos aquí mediante
@@ -86,6 +88,7 @@ Si no has instalado Chromium para Playwright, puedes usar Chrome instalado:
     $env:PLAYWRIGHT_CHANNEL = 'chrome'
     npm.cmd run test:e2e
 
-El generador Python es opcional. Su LinkedList es propia; math, wave, struct y
-subprocess son herramientas de la biblioteca estándar para audio/archivos, y
-FFmpeg codifica los MP3. La aplicación no necesita Python para ejecutarse.
+Las herramientas auxiliares también están escritas en TypeScript. El generador
+de MP3 usa Buffer y módulos estándar de Node; FFmpeg se necesita solo para
+regenerar los audios de muestra. Las portadas y los MP3 ya están incluidos en
+el proyecto.

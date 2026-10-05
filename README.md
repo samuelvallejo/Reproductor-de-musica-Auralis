@@ -4,7 +4,7 @@ Reproductor full stack TypeScript con lista doblemente enlazada, diseño Auralis
 
 ## Iniciar
 
-Con Node 22.12–24 y npm, desde esta carpeta:
+Con Node 22.13–24 y npm, desde esta carpeta:
 
     npm.cmd ci
     npm.cmd run dev
@@ -64,6 +64,12 @@ Todas las colecciones de estado son propias: DoublyLinkedList, LinkedSequence, L
     npm.cmd run build
 
 Playwright inicia dev o lo reutiliza. Fixtures Spotify prueban contratos, no sonido real del catálogo. MP3 sí se reproduce en Chromium. Consulta [verificación](docs/verification.md), [dominio](docs/domain-contract.md), [diseño](docs/design-spec.md) y [arte](docs/artwork.md).
+
+Las tareas auxiliares también usan TypeScript: `npm.cmd run generate:artwork`
+recrea las portadas SVG, `npm.cmd run generate:samples` crea los MP3 de muestra
+(requiere FFmpeg) y `npm.cmd run capture:ui` guarda capturas temporales bajo
+`test-results/` mientras Auralis está abierto. Node elimina tipos al ejecutarlas;
+`npm.cmd run typecheck` revisa sus tipos antes de compilar el producto.
 
 ## Vercel y Railway
 
