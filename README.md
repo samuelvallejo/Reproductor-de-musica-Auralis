@@ -9,7 +9,7 @@ Con Node 22.12–24 y npm, desde esta carpeta:
     npm.cmd ci
     npm.cmd run dev
 
-En otros sistemas usa npm. En Windows puedes abrir [Start-Auralis.cmd](Start-Auralis.cmd). Mantén la terminal abierta. Frontend: [http://127.0.0.1:5173](http://127.0.0.1:5173). API: [health](http://127.0.0.1:3001/health). El .env API se crea desde .env.example y editarlo reinicia el servidor durante dev.
+En otros sistemas usa npm. En Windows puedes abrir [Start-Auralis.cmd](Start-Auralis.cmd). Mantén la terminal abierta. Frontend: [http://127.0.0.1:5173](http://127.0.0.1:5173). API a través del frontend: [health](http://127.0.0.1:5173/health). El .env API se crea desde .env.example y editarlo reinicia el servidor durante dev. El proxy de Vite lee PORT de apps/api/.env, con 3001 por defecto. Esta copia local usa 3002 porque otro servicio ocupa 3001; si cambias PORT, reinicia npm.cmd run dev para actualizar ambos servidores.
 
 ## Configurar Spotify
 
@@ -30,9 +30,15 @@ PKCE usa SHA-256, state de un solo uso y verifier sessionStorage por diez minuto
 
 ## MP3 y playlists
 
-Importa varios MP3 reales de hasta 50 MB, desde Inicio/Biblioteca o arrastrando dentro del diálogo. Conserva ID3, portada y duración, valida y decodifica. Mezcla Spotify/MP3, agrega al inicio/final/posición, crea/renombra/elimina playlists y guarda favoritos. Repetir canciones crea nodos distintos. Probar sesión agrega tres MP3 originales de 32 segundos, identificados como muestras.
+Importa varios MP3 reales de hasta 50 MB, desde Inicio/Biblioteca o arrastrando dentro del diálogo. Conserva ID3, portada y duración, valida y decodifica. Mezcla Spotify/MP3 y elige la playlist y la ubicación: al inicio (seleccionada por defecto), al final o en una posición base uno. Una importación de varios archivos conserva el orden del lote. Si todavía no tienes playlists, solicita un nombre para crear la primera. Repetir canciones crea nodos distintos. Probar sesión agrega tres MP3 originales de 32 segundos, identificados como muestras.
+
+Reordena la cola arrastrando el asa de seis puntos de cada canción con mouse o tacto; la línea indica dónde se soltará. Con el asa enfocada, ↑ y ↓ también mueven el nodo. Se cambian los enlaces de la lista doblemente enlazada, conservando IDs, metadatos y la canción que está sonando. El nuevo orden se guarda en IndexedDB.
+
+Una biblioteca nueva empieza sin playlists: el usuario las crea, nombra, renombra y elimina, incluso la última. Si agrega música sin tener una playlist, solo se solicita el nombre de la primera. Al abrir una biblioteca anterior se retiran una sola vez las listas de ejemplo vacías Concentración, Noches de ciudad y Días claros. Se conservan las que tienen canciones y las listas del usuario; no se borran MP3 ni portadas.
 
 MP3/portadas se guardan en IndexedDB separados de snapshots. No se suben a Railway; cada navegador/origen tiene su biblioteca. Eliminar nodos conserva archivos en Biblioteca. Tema en localStorage. Web Audio analiza solo MP3; Spotify tiene decoración estática sin PCM.
+
+En Canciones de tu biblioteca, abre los tres puntos y pulsa Eliminar de la biblioteca. Retira esa entrada, sus favoritos y su historial; conserva las apariciones ya agregadas a playlists, sus enlaces y el MP3 guardado para que sigan sonando. Reproducirlas no restaura la entrada eliminada. Puedes agregarla de nuevo explícitamente desde una playlist, volver a buscarla en Spotify o importar el MP3 original. La operación no borra archivos del computador.
 
 Audius fue eliminado. Entradas antiguas conservan metadatos como Catálogo anterior, sin stream. No se borran playlists/MP3 ni se sustituyen canciones. Spotify con URI válida se reproduce al conectar.
 
@@ -46,7 +52,7 @@ Audius fue eliminado. Entradas antiguas conservan metadatos como Catálogo anter
 | tests | Desktop/móvil, MP3 reales y Spotify simulado |
 | .agents/skills | Seis skills de mantenimiento |
 
-Inicio/final, eliminación por ID con Map y navegación: O(1). Inserción interior: O(min(index, size − index)) para localizar, O(1) para ajustar enlaces. Serializar/reconstruir/renderizar: O(n); memoria O(n). Arrays son snapshots/resultados, no dominio. Eliminar actual elige sucesor, predecesor o null. Ver nodos muestra enlaces reales, sin ciclos.
+Todas las colecciones de estado son propias: DoublyLinkedList, LinkedSequence, LinkedSet y StringMap. El paquete de dominio no tiene dependencias externas. Navegar/enlazar/desenlazar un nodo conocido cuesta O(1); buscar ID en nuestra tabla hash cuesta O(1) esperado y O(n) en el peor caso, con inserción O(1) esperado amortizado. Inserción interior: O(min(index, size − index)) para localizar. Recorrer/serializar: O(n); memoria O(n). Los snapshots de UI son listas propias; los arrays se limitan a contratos de transporte y persistencia. Consulta [implementaciones y límites](docs/own-collections.md).
 
 ## Comprobar
 

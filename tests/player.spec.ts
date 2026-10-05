@@ -1,16 +1,19 @@
 import { test, expect, type Page } from '@playwright/test';
 import path from 'node:path';
 const sample = (name: string) => path.resolve('apps/web/public/samples', `${name}.mp3`);
-async function importTracks(page: Page, names: string[], mode = 'Al final', position?: number) {
+async function importTracks(page: Page, names: string[]) {
   await page.getByRole('button', { name: 'Importa tu primera canción', exact: true }).isVisible().then(async visible => {
     if (visible) await page.getByRole('button', { name: 'Importa tu primera canción', exact: true }).click();
     else { await page.getByRole('button', { name: 'Biblioteca', exact: true }).click(); await page.getByRole('button', { name: 'Importar MP3', exact: true }).click(); }
   });
   await page.getByLabel('Seleccionar archivos MP3').setInputFiles(names.map(sample));
-  await expect(page.getByRole('dialog')).toContainText('Dale un lugar a esta canción');
-  await page.getByLabel(mode, { exact: true }).check();
-  if (position !== undefined) await page.getByLabel('Posición de inserción').fill(String(position));
-  await page.getByRole('button', { name: 'Añadir a playlist', exact: true }).click();
+  await expect(page.getByLabel('Seleccionar archivos MP3')).not.toBeVisible();
+  if (await page.getByLabel('Nombre de la playlist').isVisible()) {
+    await page.getByLabel('Nombre de la playlist').fill('My music');
+    await page.getByRole('button', { name: 'Crear playlist', exact: true }).last().click();
+  }
+  const insertButton = page.getByRole('button', { name: 'Añadir a playlist', exact: true });
+  if (await insertButton.isVisible()) await insertButton.click();
   await expect(page.getByRole('dialog')).not.toBeVisible();
 }
 
@@ -42,16 +45,32 @@ test('imports real MP3 audio, navigates links, deletes current and persists afte
   await expect(page.getByRole('button', { name: 'Pausar', exact: true })).toBeVisible();
 });
 
-test('inserts at beginning and an interior position and exposes the actual links', async ({ page }) => {
+test('adds tracks at the start by default and reorders nodes with the keyboard', async ({ page }) => {
   await page.goto('/'); await importTracks(page, ['orbit']);
-  await importTracks(page, ['blue-hour'], 'Al inicio');
-  await importTracks(page, ['liquid-light'], 'En posición', 2);
+  await importTracks(page, ['blue-hour']);
+  await importTracks(page, ['liquid-light']);
+  await page.getByRole('button', { name: 'Arrastrar La hora azul', exact: true }).press('ArrowUp');
   const rows = page.getByTestId('queue-list').locator('.track-text strong');
   await expect(rows).toHaveText(['La hora azul', 'Luz líquida', 'Órbita']);
   await page.getByRole('button', { name: 'Ver estructura de lista doble' }).click();
   await expect(page.locator('.node-card')).toHaveCount(3);
   await expect(page.locator('.node-card').first()).toContainText('previous: null');
   await expect(page.locator('.node-card').last()).toContainText('next: null');
+});
+
+test('keeps previous, play/pause and next controls centered in the transport bar', async ({ page }) => {
+  await page.goto('/');
+  const transport = page.locator('.transport');
+  const center = page.locator('.transport-center');
+  await expect(center.getByRole('button', { name: 'Canción anterior' })).toBeVisible();
+  await expect(center.getByRole('button', { name: 'Reproducir' })).toBeVisible();
+  await expect(center.getByRole('button', { name: 'Canción siguiente' })).toBeVisible();
+  const transportBounds = await transport.boundingBox();
+  const centerBounds = await center.boundingBox();
+  if (!transportBounds || !centerBounds) throw new Error('The transport controls must be visible.');
+  expect(Math.abs((transportBounds.x + transportBounds.width / 2) - (centerBounds.x + centerBounds.width / 2))).toBeLessThan(2);
+  await expect(page.locator('.transport-left button')).toHaveCount(2);
+  await expect(page.locator('.transport-right button')).toHaveCount(2);
 });
 
 test('creates and renames playlists, favorites a track and rejects invalid MP3 files', async ({ page }) => {
@@ -91,14 +110,20 @@ test('seeks real audio, changes volume, repeats on ended and stops after removin
   await expect(page.getByRole('button', { name: 'Reproducir', exact: true })).toBeDisabled();
 });
 
-test('has no horizontal overflow at 320, 375, 768 and 1440px in both themes', async ({ page }) => {
+test('keeps transport controls apart and avoids overflow at phone, tablet and desktop widths in both themes', async ({ page }) => {
   await page.goto('/');
-  for (const width of [320, 375, 768, 1440]) {
+  for (const width of [320, 375, 768, 1100, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
     for (const theme of ['light', 'dark']) {
       await page.getByRole('combobox', { name: 'Tema de la aplicación' }).selectOption(theme);
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+      const controlsOverlap = await page.locator('.transport').evaluate(transport => {
+        const bounds = Array.from(transport.querySelectorAll('button, input'))
+          .map(control => control.getBoundingClientRect()).filter(rect => rect.width > 0).sort((left, right) => left.x - right.x);
+        return bounds.some((rect, index) => index > 0 && bounds[index - 1]!.right > rect.left + 1);
+      });
+      expect(controlsOverlap, `Transport controls overlap at ${width}px in ${theme} mode`).toBe(false);
       await expect(page.getByTestId('current-title')).toBeVisible();
     }
   }

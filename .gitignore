@@ -7,4 +7,10 @@ coverage/
 playwright-report/
 test-results/
 .vercel/
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
 *.tsbuildinfo
+
+.vercel
+.env*

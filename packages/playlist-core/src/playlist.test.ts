@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { DoublyLinkedList, PlaylistController, type LocalTrack } from './index.js';
-const track = (title: string): LocalTrack => ({ trackId: title, source: 'local', title, artists: ['Test artist'], coverUrl: null, durationMs: 1000, assetId: title, fileName: `${title}.mp3`, mimeType: 'audio/mpeg', fileSize: 100 });
+import { DoublyLinkedList, encodeTrack, LinkedSequence, PlaylistController, type LocalTrack } from './index.js';
+const track = (title: string): LocalTrack => ({ trackId: title, source: 'local', title, artists: new LinkedSequence<string>().append('Test artist'), coverUrl: null, durationMs: 1000, assetId: title, fileName: `${title}.mp3`, mimeType: 'audio/mpeg', fileSize: 100 });
 
 describe('DoublyLinkedList', () => {
   it('inserts at both endpoints and interior with reciprocal links', () => {
@@ -50,7 +50,7 @@ describe('PlaylistController', () => {
     ] });
     expect(restored.currentNode?.value.source).toBe('legacy'); expect(restored.currentNode?.nodeId).toBe('old-node');
     expect(restored.currentNode?.value).not.toHaveProperty('streamUrl');
-    restored.next(); expect(restored.currentNode?.value).toEqual(local); restored.list.assertInvariants();
+    restored.next(); expect(encodeTrack(restored.currentNode!.value)).toEqual(encodeTrack(local)); restored.list.assertInvariants();
   });
   it('navigates references and keeps its cursor at boundaries', () => {
     const playlist = new PlaylistController('id', 'Music');
@@ -74,10 +74,10 @@ describe('PlaylistController', () => {
   });
   it('roundtrips order, identity and selection and rejects corrupt snapshots', () => {
     const playlist = new PlaylistController('id', 'Music'); const a = playlist.insertAt(0, track('A')); const b = playlist.insertAt(1, track('B'));
-    playlist.select(b.nodeId); const snapshot = JSON.parse(JSON.stringify(playlist.snapshot())) as unknown;
-    const restored = PlaylistController.restore(snapshot); expect(restored.snapshot()).toEqual(playlist.snapshot()); restored.list.assertInvariants();
+    playlist.select(b.nodeId); const snapshot = JSON.parse(JSON.stringify(playlist.serialize())) as unknown;
+    const restored = PlaylistController.restore(snapshot); expect(restored.serialize()).toEqual(playlist.serialize()); restored.list.assertInvariants();
     expect(restored.currentNode?.previous?.nodeId).toBe(a.nodeId);
     expect(() => PlaylistController.restore({ ...playlist.snapshot(), schemaVersion: 9 })).toThrow();
-    expect(() => PlaylistController.restore({ ...playlist.snapshot(), entries: [playlist.snapshot().entries[0], playlist.snapshot().entries[0]] })).toThrow();
+    expect(() => PlaylistController.restore({ ...playlist.snapshot(), entries: [playlist.snapshot().entries.at(0), playlist.snapshot().entries.at(0)] })).toThrow();
   });
 });

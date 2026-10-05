@@ -55,3 +55,34 @@ Ejecuta los controles pertinentes y revisa la interfaz a 375, 768 y 1440 píxele
 No incluyas secretos en código, bundles ni logs. Usa variables del servidor y archivos de ejemplo sin valores reales. Si faltan credenciales o acceso a un proveedor, termina y verifica el trabajo local posible, identifica el dato exacto pendiente y conserva la funcionalidad de MP3. No sustituyas resultados reales por datos inventados ni confundas fixtures con audio del catálogo.
 
 Entrega una explicación en español de la estructura, sus complejidades, cómo ejecutar y desplegar, pruebas realizadas y limitaciones reales. Informa por separado implementación local, integración verificada y despliegue verificado. No anuncies una URL o una prueba exitosa sin evidencia.
+
+## Colecciones propias: requisito actualizado
+
+El usuario confirmó que se conservan React, Express y las librerías de audio.
+Implementa las estructuras de datos sin librerías de colecciones: usa los nodos
+de DoublyLinkedList/LinkedSequence, LinkedSet y la tabla hash StringMap propia.
+No introduzcas Array, Map o Set como estado de listas, catálogo, favoritos,
+historial, artistas, resultados o suscriptores. Los snapshots de UI también son
+LinkedSequence. Se admiten arrays solo en los contratos externos de Spotify,
+React, navegador, codecs de persistencia y fixtures/oráculos de prueba.
+Este requisito actual sustituye los permisos anteriores de arrays de snapshots
+o de un Map opcional en las skills y en documentación histórica.
+El dominio no tiene dependencias externas; valida y clona sus modelos con código
+propio. Mantén el formato guardado versión 1 y los assetId existentes.
+Consulta docs/own-collections.md para implementaciones, costes y límites.
+
+## Edición de playlists: requisito actualizado
+
+Al agregar canciones, ofrece al inicio, al final o una posición base uno
+elegida por el usuario. Las tres opciones se traducen a insertAt del dominio;
+los lotes MP3 conservan el orden seleccionado en cualquiera de ellas. Permite
+reordenar desde el asa con mouse, tacto y teclado: mueve el mismo nodo mediante
+moveBefore/moveAfter, preservando identidad, metadatos y cursor. La reproducción
+actual no debe reiniciarse por cambiar el orden.
+
+No crees playlists de ejemplo ni una playlist inicial automáticamente. Permite
+que el usuario cree todas sus listas y elimine la última. Si agrega música sin
+listas, solicita únicamente el nombre para crear la primera. Retira una sola
+vez las listas antiguas de ejemplo vacías conocidas; conserva las pobladas,
+los MP3 y las listas del usuario. Persiste el marcador de migración para que
+un nombre elegido después por el usuario no active esa limpieza otra vez.

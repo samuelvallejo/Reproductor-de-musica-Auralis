@@ -12,6 +12,6 @@ export function Cover({ track, artwork = 0, className = '' }: { track?: Track | 
     if (assetId) void loadAsset(assetId).then(asset => { if (active && asset?.cover) { url = URL.createObjectURL(asset.cover); setLocalCover(url); } }).catch(() => undefined);
     return () => { active = false; if (url) URL.revokeObjectURL(url); };
   }, [assetId, track?.coverUrl]);
-  const fallback = `/artwork/${['orbit-cover.png', 'dawn.svg', 'night.svg', 'coast.svg'][artwork % 4]}`;
+  const fallback = `/artwork/${({ 0: 'orbit-cover.png', 1: 'dawn.svg', 2: 'night.svg', 3: 'coast.svg' } as Record<number, string>)[artwork % 4] ?? 'orbit-cover.png'}`;
   return <img className={`cover ${className}`} src={failed ? fallback : localCover || track?.coverUrl || fallback} alt={track ? `Portada de ${track.title}` : 'Paisaje imaginario de Auralis'} onError={() => setFailed(true)} loading="lazy" />;
 }

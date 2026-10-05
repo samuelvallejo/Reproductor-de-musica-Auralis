@@ -9,7 +9,8 @@
     "lucide-react": "1.49.0",
     "music-metadata": "11.16.1",
     "react": "19.3.0",
-    "react-dom": "19.3.0"
+    "react-dom": "19.3.0",
+    "zod": "4.6.5"
   },
   "scripts": {
     "dev": "vite --host 127.0.0.1",

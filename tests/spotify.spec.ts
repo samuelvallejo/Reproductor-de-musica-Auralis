@@ -52,14 +52,30 @@ async function login(page: Page) {
 async function addSearchTrack(page: Page, index: number) {
   await page.getByLabel('Buscar canciones en Spotify').fill('fixture');
   await page.getByRole('button', { name: `Agregar Spotify fixture ${index}`, exact: true }).click();
-  await page.getByRole('button', { name: 'Añadir a playlist', exact: true }).click();
+  if (await page.getByLabel('Nombre de la playlist').isVisible()) {
+    await page.getByLabel('Nombre de la playlist').fill('Spotify playlist');
+    await page.getByRole('button', { name: 'Crear playlist', exact: true }).last().click();
+  }
+  const insertButton = page.getByRole('button', { name: 'Añadir a playlist', exact: true });
+  if (await insertButton.isVisible()) await insertButton.click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
+  if (index === 2) {
+    await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
+    await expect(page.getByTestId('queue-list').locator('.track-text strong').first()).toHaveText('Spotify fixture 2');
+    await page.getByRole('button', { name: 'Arrastrar Spotify fixture 2', exact: true }).press('ArrowDown');
+  }
 }
 
 test('authorizes with verified PKCE, plays the node URI on Auralis and keeps local MP3 playback', async ({ page }) => {
   const fixture = await prepare(page); await login(page);
-  const params = fixture.authorizations[0].searchParams; const exchange = fixture.exchanges[0];
+  const authorization = fixture.authorizations[0];
+  const exchange = fixture.exchanges[0];
+  if (!authorization || !exchange) throw new Error('Expected an authorization request and a token exchange.');
+  const params = authorization.searchParams;
+  const verifier = exchange.get('code_verifier');
+  if (!verifier) throw new Error('Expected a PKCE code verifier in the token exchange.');
   expect(params.get('code_challenge_method')).toBe('S256');
-  expect(params.get('code_challenge')).toBe(createHash('sha256').update(exchange.get('code_verifier')!).digest('base64url'));
+  expect(params.get('code_challenge')).toBe(createHash('sha256').update(verifier).digest('base64url'));
   expect(params.get('redirect_uri')).toBe('http://127.0.0.1:5173/spotify/callback');
   for (const scope of ['streaming', 'user-read-private', 'user-read-email', 'user-modify-playback-state']) expect(params.get('scope')).toContain(scope);
   expect(exchange.get('client_secret')).toBeNull(); expect(page.url()).not.toContain('code=');
@@ -84,14 +100,17 @@ test('authorizes with verified PKCE, plays the node URI on Auralis and keeps loc
   await page.getByRole('button', { name: 'Biblioteca', exact: true }).click();
   await page.getByRole('button', { name: 'Importar MP3', exact: true }).click();
   await page.getByLabel('Seleccionar archivos MP3').setInputFiles(path.resolve('apps/web/public/samples/orbit.mp3'));
-  await page.getByRole('button', { name: 'Añadir a playlist', exact: true }).click();
+  await expect(page.getByLabel('Seleccionar archivos MP3')).not.toBeVisible();
+  const insertButton = page.getByRole('button', { name: 'Añadir a playlist', exact: true });
+  if (await insertButton.isVisible()) await insertButton.click();
+  await expect(page.getByRole('dialog')).not.toBeVisible();
   await page.getByRole('button', { name: 'Inicio', exact: true }).click();
-  await page.getByRole('button', { name: 'Canción siguiente', exact: true }).click();
-  await page.getByRole('button', { name: 'Canción siguiente', exact: true }).click();
+  await page.getByRole('button', { name: 'Canción anterior', exact: true }).click();
   await expect(page.getByTestId('current-title')).toHaveText('Órbita');
   await page.getByRole('button', { name: 'Reproducir', exact: true }).click();
   await expect.poll(async () => Number(await progress.inputValue())).toBeGreaterThan(.2);
-  await page.getByRole('button', { name: 'Canción anterior', exact: true }).click();
+  await page.getByRole('button', { name: 'Canción siguiente', exact: true }).click();
+  await page.getByRole('button', { name: 'Canción siguiente', exact: true }).click();
   await expect(page.getByTestId('current-title')).toHaveText('Spotify fixture 2');
   await expect.poll(() => fixture.plays.at(-1)?.uri).toBe('spotify:track:fixture2');
   await expect(page.locator('.sidebar-bottom')).toContainText('Tu biblioteca está guardada');

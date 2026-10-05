@@ -1,5 +1,5 @@
 import { parseBlob } from 'music-metadata';
-import type { LocalTrack } from '@auralis/playlist-core';
+import { LinkedSequence, type LocalTrack } from '@auralis/playlist-core';
 import { saveAsset } from './storage';
 
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
@@ -14,7 +14,7 @@ export async function importMp3(file: File): Promise<LocalTrack> {
   await saveAsset(assetId, { audio: file, cover });
   return {
     source: 'local', trackId: assetId, assetId, title: metadata.common.title || file.name.replace(/\.mp3$/i, ''),
-    artists: metadata.common.artists?.length ? metadata.common.artists : [metadata.common.artist || 'Artista desconocido'],
+    artists: metadata.common.artists?.length ? LinkedSequence.from(metadata.common.artists) : new LinkedSequence<string>().append(metadata.common.artist || 'Artista desconocido'),
     coverUrl: null, durationMs: duration * 1000, album: metadata.common.album,
     year: metadata.common.year ? String(metadata.common.year) : undefined,
     fileName: file.name, fileSize: file.size, mimeType: 'audio/mpeg',

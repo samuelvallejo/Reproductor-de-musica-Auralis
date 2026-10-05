@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { PlaybackStatus, Track } from '@auralis/playlist-core';
+import { LinkedSet, type PlaybackStatus, type Track } from '@auralis/playlist-core';
 import { library } from './library';
 import { loadAsset } from './storage';
 import { spotify, type SpotifyState } from './spotify-session';
@@ -8,7 +8,7 @@ interface AudioView { status: PlaybackStatus; progress: number; duration: number
 class AudioEngine {
   readonly element = new Audio();
   private view: AudioView = { status: 'idle', progress: 0, duration: 0, volume: 0.75, repeat: false, error: null };
-  private listeners = new Set<() => void>();
+  private listeners = new LinkedSet<() => void>();
   private selection = '';
   private version = 0;
   private track: Track | null = null;

@@ -1,8 +1,9 @@
 import { useSyncExternalStore } from 'react';
 import { z } from 'zod';
+import { LinkedSet } from '@auralis/playlist-core';
 
 const apiBase = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const scopes = ['streaming', 'user-read-private', 'user-read-email', 'user-modify-playback-state', 'user-read-playback-state'];
+const scopes = 'streaming user-read-private user-read-email user-modify-playback-state user-read-playback-state';
 const pendingKey = 'auralis.spotify.pkce';
 const pendingSchema = z.object({ state: z.string(), verifier: z.string(), clientId: z.string(), redirectUri: z.url(), created: z.number() });
 const tokenSchema = z.object({ access_token: z.string().min(1), refresh_token: z.string().min(1).optional(), expires_in: z.number().positive(), token_type: z.string(), scope: z.string().optional() });
@@ -43,8 +44,8 @@ function loadSdk() {
 }
 class SpotifySession {
   private view: SessionView = { authenticated: false, connecting: false, deviceId: null, displayName: null, error: null };
-  private listeners = new Set<() => void>();
-  private states = new Set<(state: SpotifyState | null) => void>();
+  private listeners = new LinkedSet<() => void>();
+  private states = new LinkedSet<(state: SpotifyState | null) => void>();
   private token: { access: string; refresh: string; expires: number; clientId: string } | null = null;
   private refreshing: Promise<string> | null = null;
   private boot: Promise<void> | null = null;
@@ -70,7 +71,7 @@ class SpotifySession {
       const verifier = random(); const state = random(); const redirectUri = `${location.origin}/spotify/callback`;
       const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(verifier));
       sessionStorage.setItem(pendingKey, JSON.stringify({ verifier, state, clientId, redirectUri, created: Date.now() }));
-      const query = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri, state, code_challenge_method: 'S256', code_challenge: base64url(new Uint8Array(digest)), scope: scopes.join(' ') });
+      const query = new URLSearchParams({ client_id: clientId, response_type: 'code', redirect_uri: redirectUri, state, code_challenge_method: 'S256', code_challenge: base64url(new Uint8Array(digest)), scope: scopes });
       location.assign(`https://accounts.spotify.com/authorize?${query}`);
     } catch (error) { this.update({ error: error instanceof Error ? error.message : 'No pudimos iniciar sesión.' }); }
   }

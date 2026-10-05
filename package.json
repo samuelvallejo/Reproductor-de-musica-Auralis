@@ -16,7 +16,7 @@
     "build:web": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/web",
     "build:api": "npm run build -w @auralis/playlist-core && npm run build -w @auralis/api",
     "start:api": "npm run start -w @auralis/api",
-    "typecheck": "npm run build -w @auralis/playlist-core && npm run typecheck --workspaces --if-present",
+    "typecheck": "npm run build -w @auralis/playlist-core && npm run typecheck --workspaces --if-present && tsc -p tsconfig.json",
     "lint": "eslint apps packages tests",
     "test": "vitest run",
     "test:e2e": "playwright test",
